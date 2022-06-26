@@ -71,22 +71,23 @@ def get_gdp_quarter():
         ti :第三产业增加值(亿元)
         ti_yoy :第三产业增加值同比增长(%)
     """
-    rdint = vs.random()
-    request = Request(vs.MACRO_URL%(vs.P_TYPE['http'], vs.DOMAINS['sina'],
-                                    rdint, vs.MACRO_TYPE[0], 1, 250,
-                                    rdint))
-    text = urlopen(request,timeout=10).read()
-    text = text.decode('gbk') if ct.PY3 else text
-    regSym = re.compile(r'\,count:(.*?)\}')
-    datastr = regSym.findall(text)
-    datastr = datastr[0]
-    datastr = datastr.split('data:')[1]
-    datastr = datastr.replace('"', '').replace('null', '0')
-    js = json.loads(datastr)
-    df = pd.DataFrame(js, columns=vs.GDP_QUARTER_COLS)
-    df['quarter'] = df['quarter'].astype(object)
-    df[df==0] = np.NaN
-    return df
+#     rdint = vs.random()
+#     request = Request(vs.MACRO_URL%(vs.P_TYPE['http'], vs.DOMAINS['sina'],
+#                                     rdint, vs.MACRO_TYPE[0], 1, 250,
+#                                     rdint))
+#     text = urlopen(request,timeout=10).read()
+#     text = text.decode('gbk') if ct.PY3 else text
+#     regSym = re.compile(r'\,count:(.*?)\}')
+#     datastr = regSym.findall(text)
+#     datastr = datastr[0]
+#     datastr = datastr.split('data:')[1]
+#     datastr = datastr.replace('"', '').replace('null', '0')
+#     js = json.loads(datastr)
+#     df = pd.DataFrame(js, columns=vs.GDP_QUARTER_COLS)
+#     df['quarter'] = df['quarter'].astype(object)
+#     df[df==0] = np.NaN
+#     return df
+    return "请使用pro版数据：https://tushare.pro/document/2?doc_id=227"
 
 
 def get_gdp_for():
@@ -419,3 +420,8 @@ def get_gold_and_foreign_reserves():
     for i in df.columns:
         df[i] = df[i].apply(lambda x: np.where(x is None, '--', x))
     return df
+
+
+if __name__ == '__main__':
+    df = get_gdp_quarter()
+    print(df)

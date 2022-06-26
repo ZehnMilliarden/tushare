@@ -1,0 +1,19 @@
+{
+    "python.languageServer": "Pylance",
+    "editor.formatOnSave": true,
+    "python.autoComplete.addBrackets": true,
+    "python.autoComplete.extraPaths": [
+        "./tushare",
+        "./tushare/tushare"
+    ],
+    "python.analysis.extraPaths": [
+        "./tushare",
+        "./tushare/tushare"
+    ],
+    "python.jediEnable": false,
+    "python.envFile": "${workspaceFolder}/.env",
+    "python.analysis.completeFunctionParens": true,
+    "terminal.integrated.env.windows": {
+        "PYTHONPATH": "${workspaceRoot}"
+    }
+}

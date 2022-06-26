@@ -11,7 +11,11 @@ import numpy as np
 from tushare.stock import cons as ct
 from tushare.util import dateu as du
 from tushare.util.netbase import Client
-from pandas.compat import StringIO
+v = pd.__version__ 
+if int(v.split('.')[1])>=25 or int(v.split('.')[0])>0:
+    from io import StringIO
+else:    
+    from pandas.compat import StringIO
 
 def shibor_data(year=None):
     """

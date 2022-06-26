@@ -67,7 +67,6 @@ INX_DAY_PRICE_COLUMNS = ['date', 'open', 'high', 'close', 'low', 'volume', 'pric
 LIVE_DATA_COLS = ['name', 'open', 'pre_close', 'price', 'high', 'low', 'bid', 'ask', 'volume', 'amount',
                   'b1_v', 'b1_p', 'b2_v', 'b2_p', 'b3_v', 'b3_p', 'b4_v', 'b4_p', 'b5_v', 'b5_p',
                   'a1_v', 'a1_p', 'a2_v', 'a2_p', 'a3_v', 'a3_p', 'a4_v', 'a4_p', 'a5_v', 'a5_p', 'date', 'time', 's']
-US_LIVE_DATA_COLS = ['name', 'price', 'change_percent', 'time', 'change', 'open', 'high', 'low', 'high_52week', 'low_52week', 'volume', 'volume_average', 'mktcap', 'eps', 'pe', 'fpe', 'beta', 'dividend', 'earnings_yield', 'totals', 'instown', 'extended_price', 'extended_change_percent', 'extended_change', 'extended_time', 'time_est', 'pre_close', 'extended_volume']
 FOR_CLASSIFY_COLS = ['code','name']
 FOR_CLASSIFY_B_COLS = ['date', 'code','name']
 FOR_CLASSIFY_W_COLS = ['date','code', 'name', 'weight']
@@ -86,7 +85,7 @@ KLINE_TT_MIN_URL = '%sifzq.%s/appstock/app/kline/mkline?param=%s,m%s,,640&_var=m
 DAY_PRICE_URL = '%sapi.finance.%s/%s/?code=%s&type=last'
 LIVE_DATA_URL = '%shq.%s/rn=%s&list=%s'
 DAY_PRICE_MIN_URL = '%sapi.finance.%s/akmin?scode=%s&type=%s'
-SINA_DAY_PRICE_URL = '%s%s/quotes_service/api/%s/Market_Center.getHQNodeData?num=80&sort=code&asc=0&node=%s&symbol=&_s_r_a=page&page=%s'
+SINA_DAY_PRICE_URL = '%s%s/quotes_service/api/%s/Market_Center.getHQNodeData?num=200&sort=code&asc=0&node=%s&symbol=&_s_r_a=page&page=%s'
 # SINA_DAY_PRICE_URL = '%s%s/quotes_service/api/%s/Market_Center.getHQNodeData?num=10000&node=%s'
 REPORT_URL = '%s%s/q/go.php/vFinanceAnalyze/kind/mainindex/%s?s_i=&s_a=&s_c=&reportdate=%s&quarter=%s&p=%s&num=%s'
 FORECAST_URL = '%s%s/q/go.php/vFinanceAnalyze/kind/performance/%s?s_i=&s_a=&s_c=&s_type=&reportdate=%s&quarter=%s&p=%s&num=%s'
@@ -167,7 +166,7 @@ BAR_X_FUTURE_RL_COLS = ['code', 'open', 'close', 'high', 'low', 'vol', 'avg_pric
 BAR_X_OTHER_COLS = ['code', 'open', 'close', 'high', 'low', 'vol']
 T_DROP_COLS = ['year', 'month', 'day', 'hour','minute']
 LPR_MA_COLS = ['date', '1Y_5', '1Y_10', '1Y_20']
-INDEX_HEADER = 'code,name,open,preclose,close,high,low,0,0,volume,amount,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,d,c,3\n'
+INDEX_HEADER = 'code,name,open,preclose,close,high,low,0,0,volume,amount,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,d,c,3,\n'
 INDEX_COLS = ['code', 'name', 'change', 'open', 'preclose', 'close', 'high', 'low', 'volume', 'amount']
 HIST_FQ_COLS = ['date', 'open', 'high', 'close', 'low', 'volume', 'amount', 'factor']
 SINA_DD_COLS = ['code', 'name', 'time', 'price', 'volume', 'preprice', 'type']
@@ -412,8 +411,6 @@ def _code_to_symbol(code):
     '''
     if code in INDEX_LABELS:
         return INDEX_LIST[code]
-    elif code[:3] == 'gb_':
-        return code
     else:
         if len(code) != 6 :
             return code

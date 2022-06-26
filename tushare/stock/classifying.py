@@ -13,7 +13,6 @@ from tushare.stock import cons as ct
 from tushare.stock import ref_vars as rv
 import json
 import re
-from pandas.util.testing import _network_error_classes
 import time
 import tushare.stock.fundamental as fd
 from tushare.util.netbase import Client
@@ -144,7 +143,7 @@ def get_gem_classified():
     df = fd.get_stock_basics()
     df.reset_index(inplace=True)
     df = df[ct.FOR_CLASSIFY_COLS]
-    df = df.ix[df.code.str[0] == '3']
+    df = df.loc[df.code.str[0] == '3']
     df = df.sort_values('code').reset_index(drop=True)
     return df
     
@@ -161,7 +160,7 @@ def get_sme_classified():
     df = fd.get_stock_basics()
     df.reset_index(inplace=True)
     df = df[ct.FOR_CLASSIFY_COLS]
-    df = df.ix[df.code.str[0:3] == '002']
+    df = df.loc[df.code.str[0:3] == '002']
     df = df.sort_values('code').reset_index(drop=True)
     return df 
 
@@ -177,7 +176,7 @@ def get_st_classified():
     df = fd.get_stock_basics()
     df.reset_index(inplace=True)
     df = df[ct.FOR_CLASSIFY_COLS]
-    df = df.ix[df.name.str.contains('ST')]
+    df = df.loc[df.name.str.contains('ST')]
     df = df.sort_values('code').reset_index(drop=True)
     return df 
 
@@ -197,7 +196,7 @@ def _get_detail(tag, retry_count=3, pause=0.001):
                                                                    p,tag))
                 text = urlopen(request, timeout=10).read()
                 text = text.decode('gbk')
-            except _network_error_classes:
+            except:
                 pass
             else:
                 break

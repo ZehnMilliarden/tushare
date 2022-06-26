@@ -17,7 +17,6 @@ import numpy as np
 import datetime
 from tushare.stock import cons as ct
 import re
-from pandas.compat import StringIO
 from tushare.util import dateu as du
 from tushare.util.formula import MA
 import os
@@ -27,7 +26,11 @@ try:
     from urllib.request import urlopen, Request
 except ImportError:
     from urllib2 import urlopen, Request
-
+v = pd.__version__ 
+if int(v.split('.')[1])>=25 or int(v.split('.')[0])>0:
+    from io import StringIO
+else:    
+    from pandas.compat import StringIO
 
 def get_hist_data(code=None, start=None, end=None,
                   ktype='D', retry_count=3,
@@ -120,11 +123,14 @@ def _parsing_dayprice_json(types=None, page=1):
     text = reg.sub(r',"\1":', text.decode('gbk') if ct.PY3 else text) 
     text = text.replace('"{symbol', '{"symbol')
     text = text.replace('{symbol', '{"symbol"')
+    text = text.replace('""', '"')
+    text = text.replace('"{"', '{"')
     if ct.PY3:
-        jstr = json.dumps(text)
+#         text = text.decode('GBK')
+        js = json.dumps(text)
     else:
-        jstr = json.dumps(text, encoding='GBK')
-    js = json.loads(jstr)
+        js = json.dumps(text, encoding='GBK')
+    js = json.loads(js)
     df = pd.DataFrame(pd.read_json(js, dtype={'code':object}),
                       columns=ct.DAY_TRADING_COLUMNS)
     df = df.drop('symbol', axis=1)
@@ -229,7 +235,7 @@ def get_sina_dd(code=None, date=None, vol=400, retry_count=3, pause=0.001):
     raise IOError(ct.NETWORK_URL_ERROR_MSG)
 
 
-def get_today_ticks(code=None, retry_count=3, pause=0.001):
+def get_today_tickss(code=None, retry_count=3, pause=0.001):
     """
         获取当日分笔明细数据
     Parameters
@@ -315,7 +321,10 @@ def get_today_all():
     if df is not None:
         for i in range(2, ct.PAGE_NUM[1]):
             newdf = _parsing_dayprice_json('hs_a', i)
-            df = df.append(newdf, ignore_index=True)
+            if newdf.shape[0] > 0:
+                df = df.append(newdf, ignore_index=True)
+            else:
+                break
     df = df.append(_parsing_dayprice_json('shfxjs', 1),
                                                ignore_index=True)
     return df
@@ -364,29 +373,27 @@ def get_realtime_quotes(symbols=None):
             symbols_list += ct._code_to_symbol(code) + ','
     else:
         symbols_list = ct._code_to_symbol(symbols)
-        
     symbols_list = symbols_list[:-1] if len(symbols_list) > 8 else symbols_list 
-    request = Request(ct.LIVE_DATA_URL%(ct.P_TYPE['http'], ct.DOMAINS['sinahq'],
-                                                _random(), symbols_list))
+    request = Request(ct.LIVE_DATA_URL%(ct.P_TYPE['http'], ct.DOMAINS['sinahq'], _random(), symbols_list), headers={
+        'host': 'hq.sinajs.cn',
+        'referer': 'https://finance.sina.com.cn/'
+    })
     text = urlopen(request,timeout=10).read()
     text = text.decode('GBK')
     reg = re.compile(r'\="(.*?)\";')
     data = reg.findall(text)
-    regSym = re.compile(r'(?:sh|sz|gb_)(.*?)\=')
+    regSym = re.compile(r'(?:sh|sz)(.*?)\=')
     syms = regSym.findall(text)
     data_list = []
     syms_list = []
     for index, row in enumerate(data):
         if len(row)>1:
-            data_list.append([astr for astr in row.split(',')])
+            data_list.append([astr for astr in row.split(',')[:33]])
             syms_list.append(syms[index])
     if len(syms_list) == 0:
         return None
-    if len(data_list[0]) == 28:
-        df = pd.DataFrame(data_list, columns=ct.US_LIVE_DATA_COLS)
-    else:
-        df = pd.DataFrame(data_list, columns=ct.LIVE_DATA_COLS)
-        df = df.drop('s', axis=1)
+    df = pd.DataFrame(data_list, columns=ct.LIVE_DATA_COLS)
+    df = df.drop('s', axis=1)
     df['code'] = syms_list
     ls = [cls for cls in df.columns if '_v' in cls]
     for txt in ls:
@@ -811,9 +818,9 @@ def bar2h5(market='', date='', freq='D', asset='E', filepath=''):
     store = pd.HDFStore(fname, "a")
     if market in ['SH', 'SZ']:
         if market == 'SH':
-            stks = stks.ix[stks.index.str[0]=='6', :]
+            stks = stks.loc[stks.index.str[0]=='6', :]
         elif market == 'SZ':
-            stks = stks.ix[stks.index.str[0]!='6', :]
+            stks = stks.loc[stks.index.str[0]!='6', :]
         else:
             stks = ''
         market = 1 if market == 'SH' else 0
@@ -989,7 +996,7 @@ def bar(code, conn=None, start_date=None, end_date=None, freq='D', asset='E',
                         data['adj_factor'] = data['adj_factor'].fillna(method='bfill')
                     else:
                         def get_val(day):
-                            return df.ix[day]['adj_factor']
+                            return df.loc[day]['adj_factor']
                         data['adj_factor'] = data.index.map(lambda x: get_val(str(x)[0:10]))
                     for col in ct.BAR_E_COLS[1:5]:
                         if adj == 'hfq':
@@ -1006,7 +1013,7 @@ def bar(code, conn=None, start_date=None, end_date=None, freq='D', asset='E',
                             data['floats'] = data['floats'].fillna(method='bfill')
                         else:
                             def get_val(day):
-                                return df.ix[day]['floats']
+                                return df.loc[day]['floats']
                             data['floats'] = data.index.map(lambda x: get_val(str(x)[0:10]))
                         data['tor'] = data['vol'] / data['floats'] 
                         data['tor'] = data['tor'].map(ct.FORMAT)
@@ -1245,6 +1252,48 @@ def get_instrument(xapi=None):
     return data
 
 
+def get_today_ticks(code=None, retry_count=3, pause=0.001):
+    """
+        获取分笔数据
+    Parameters
+    ------
+        code:string
+                  股票代码 e.g. 600848
+                  如遇网络等问题重复执行的次数
+        pause : int, 默认 0
+                 重复请求数据过程中暂停的秒数，防止请求间隔时间太短出现的问题
+        src : 数据源选择，可输入sn(新浪)、tt(腾讯)、nt(网易)，默认sn
+     return
+     -------
+        DataFrame 当日所有股票交易数据(DataFrame)
+              属性:成交时间、成交价格、价格变动，成交手、成交金额(元)，买卖类型
+    """
+    url = 'http://push2ex.eastmoney.com/getStockFenShi?pagesize=6644&ut=7eea3edcaed734bea9cbfc24409ed989&dpt=wzfscj&pageindex=0&id=%s&sort=1&ft=1&code=%s&market=1&_=%s'
+    for _ in range(retry_count):
+        time.sleep(pause)
+        try:
+            re = Request(url%(code, code, _random()))
+            lines = urlopen(re, timeout=10).read()
+#             if ct.PY3:
+#                 lines = lines.decode('GBK') 
+            lines = json.loads(lines)
+            lines = lines['data']['data']
+            df = pd.DataFrame(lines)   
+            df = df.rename(columns={'t': 'time', 'p': 'price', 'v': 'vol', 'bs': 'type'})
+            df = df[['time', 'price', 'vol', 'type']]
+            df['price'] = df['price'].map(lambda x: x/1000)
+            df['type'] = df['type'].map(lambda x: bs_type[str(x)])
+            df['time'] = df['time'].map(lambda x: str(x).zfill(6))
+        except Exception as e:
+            print(e)
+        else:
+            return df
+    raise IOError(ct.NETWORK_URL_ERROR_MSG)
+
+bs_type = {'1':u'买入', 
+           '2': u'卖出', 
+           '4': u'-'}
+
 def get_markets(xapi=None):
     """
             获取市场代码
@@ -1278,4 +1327,18 @@ def _random(n=13):
     return str(randint(start, end))
 
 
-
+if __name__ == '__main__':
+#     from tushare.util.conns import get_apis, close_apis
+#     cons = get_apis()
+#     df = bar('rb2001', conn=cons, asset='X', freq='1min')
+#     print(df)
+#     close_apis(cons)
+#     df = get_tick_data('600848', src='sn', date='2020-04-10')
+#     df = get_today_ticks(code='000001')
+#     print(df)
+#     df = get_today_ticks(code='600000')
+#     print(df)
+    
+    df = get_realtime_quotes('123033')
+    print(df)
+    

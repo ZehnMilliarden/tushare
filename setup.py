@@ -74,27 +74,32 @@ def read_install_requires():
     return reqs
 
 
-setup(
-    name='tushare',
-    version=read('tushare/VERSION.txt'),
-    description='A utility for crawling historical and Real-time Quotes data of China stocks',
-#     long_description=read("READM.rst"),
-    long_description = long_desc,
-    author='Jimmy Liu',
-    author_email='jimmysoa@sina.cn',
-    license='BSD',
-    url='http://tushare.org',
-    install_requires=read_install_requires(),
-    keywords='Global Financial Data',
-    classifiers=['Development Status :: 4 - Beta',
-    'Programming Language :: Python :: 2.6',
-    'Programming Language :: Python :: 2.7',
-    'Programming Language :: Python :: 3.2',
-    'Programming Language :: Python :: 3.3',
-    'Programming Language :: Python :: 3.4',
-    'Programming Language :: Python :: 3.5',
-    'License :: OSI Approved :: BSD License'],
-    packages=find_packages(),
-    include_package_data=True,
-    package_data={'': ['*.csv', '*.txt']},
-)
+def RunSetup():
+
+    setup(
+        name='tushare',
+        version=read('tushare/VERSION.txt'),
+        description='A utility for crawling historical and Real-time Quotes data of China stocks',
+    #     long_description=read("READM.rst"),
+        long_description = long_desc,
+        author='Jimmy Liu',
+        author_email='jimmysoa@sina.cn',
+        license='BSD',
+        url='http://tushare.org',
+        install_requires=read_install_requires(),
+        keywords='Global Financial Data',
+        classifiers=['Development Status :: 4 - Beta',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'License :: OSI Approved :: BSD License'],
+        packages=find_packages(),
+        include_package_data=True,
+        package_data={'': ['*.csv', '*.txt']},
+    )
+
+if __name__ == '__main__':
+    pass

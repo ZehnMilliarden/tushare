@@ -5,11 +5,11 @@
 Pro数据接口 
 Created on 2017/07/01
 @author: polo,Jimmy
-@group : tushare.pro
+@group : https://waditu.com
 """
 
 import pandas as pd
-import simplejson as json
+import json
 from functools import partial
 import requests
 
@@ -17,9 +17,9 @@ import requests
 class DataApi:
 
     __token = ''
-    __http_url = 'http://api.tushare.pro'
+    __http_url = 'http://api.waditu.com'
 
-    def __init__(self, token, timeout=10):
+    def __init__(self, token, timeout=30):
         """
         Parameters
         ----------
@@ -38,14 +38,16 @@ class DataApi:
         }
 
         res = requests.post(self.__http_url, json=req_params, timeout=self.__timeout)
-        result = json.loads(res.text)
-        if result['code'] != 0:
-            raise Exception(result['msg'])
-        data = result['data']
-        columns = data['fields']
-        items = data['items']
-
-        return pd.DataFrame(items, columns=columns)
+        if res:
+            result = json.loads(res.text)
+            if result['code'] != 0:
+                raise Exception(result['msg'])
+            data = result['data']
+            columns = data['fields']
+            items = data['items']
+            return pd.DataFrame(items, columns=columns)
+        else:
+            return pd.DataFrame()
 
     def __getattr__(self, name):
         return partial(self.query, name)
