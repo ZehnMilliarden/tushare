@@ -8,7 +8,6 @@ Created on 2017年06月04日
 
 import json
 import datetime
-from bs4 import BeautifulSoup
 import pandas as pd
 from tushare.futures import domestic_cons as ct
 try:
