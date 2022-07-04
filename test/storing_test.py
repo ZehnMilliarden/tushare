@@ -1,21 +1,39 @@
 # -*- coding:utf-8 -*-
 
+from ast import And
+from genericpath import isfile
+from importlib.resources import path
 import os
 # from sqlalchemy import create_engine
 from pandas.io.pytables import HDFStore
 import tushare as ts
 
 
+def get_data_fullpath( file: str ):
+    strFullPath: str = os.path.join(os.getcwd(), file)
+    strFullPathFolder: str = os.path.dirname(strFullPath)
+
+    if os.path.exists(strFullPathFolder) == False:
+        os.makedirs(strFullPathFolder)
+
+    if os.path.exists(strFullPath):
+        if os.path.isfile(strFullPath):
+            os.remove(strFullPath)
+
+    return strFullPath
+
 def csv():
     df = ts.get_hist_data('000875')
-    df.to_csv('./data/day/000875.csv',
+    
+    df.to_csv(get_data_fullpath('data/day/000875.csv'),
               columns=['open', 'high', 'low', 'close'])
 
 
 def xls():
     df = ts.get_hist_data('000875')
     # 直接保存
-    df.to_excel('./data/day/000875.xlsx', startrow=2, startcol=5)
+    strDataPath = get_data_fullpath('data/day/000875.xlsx')
+    df.to_excel(strDataPath, startrow=0, startcol=0)
 
 
 def hdf():
