@@ -9,7 +9,7 @@ from pandas.io.pytables import HDFStore
 import tushare as ts
 
 
-def get_data_fullpath( file: str ):
+def get_data_fullpath(file: str):
     strFullPath: str = os.path.join(os.getcwd(), file)
     strFullPathFolder: str = os.path.dirname(strFullPath)
 
@@ -22,17 +22,19 @@ def get_data_fullpath( file: str ):
 
     return strFullPath
 
-def csv():
-    df = ts.get_hist_data('000875')
-    
-    df.to_csv(get_data_fullpath('data/day/000875.csv'),
+
+def csv(stoke: str):
+    df = ts.get_hist_data(stoke)
+    strTempPath = 'data/day/{stoke_id}.csv'.format(stoke_id=stoke)
+    df.to_csv(get_data_fullpath(strTempPath),
               columns=['open', 'high', 'low', 'close'])
 
 
-def xls():
-    df = ts.get_hist_data('000875')
+def xls(stoke: str):
+    df = ts.get_hist_data('stoke')
     # 直接保存
-    strDataPath = get_data_fullpath('data/day/000875.xlsx')
+    strTempPath = 'data/day/{stoke_id}.xlsx'.format(stoke_id=stoke)
+    strDataPath = get_data_fullpath(strTempPath)
     df.to_excel(strDataPath, startrow=0, startcol=0)
 
 
@@ -76,6 +78,8 @@ def db():
 
 
 def nosql():
+    pass
+
     import pymongo
     import json
     conn = pymongo.Connection('127.0.0.1', port=27017)
@@ -88,4 +92,5 @@ def nosql():
 
 
 if __name__ == '__main__':
-    xls()
+    csv('600848')
+    csv('601696')
