@@ -100,5 +100,6 @@ class Test(unittest.TestCase):
                 print('%s fund info' % item)
                 print(fund_df)
 
+
 if __name__ == '__main__':
     unittest.main()

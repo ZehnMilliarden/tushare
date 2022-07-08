@@ -5,3 +5,4 @@ simplejson>=3.16.0
 bs4>=0.0.1
 BeautifulSoup4>=4.5.1
 openpyxl>=3.0.10
+matplotlib>=3.5.2

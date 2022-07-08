@@ -24,7 +24,7 @@ def get_data_fullpath(file: str):
 
 
 def csv(stoke: str):
-    df = ts.get_hist_data(stoke)
+    df = ts.get_hist_data(code=stoke, ktype="5")
     strTempPath = 'data/day/{stoke_id}.csv'.format(stoke_id=stoke)
     df.to_csv(get_data_fullpath(strTempPath),
               columns=['open', 'high', 'low', 'close'])
