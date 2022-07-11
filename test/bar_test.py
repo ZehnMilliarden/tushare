@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*- 
+# -*- coding:utf-8 -*-
 '''
 Created on 2017/9/24
 @author: Jimmy Liu
@@ -6,18 +6,21 @@ Created on 2017/9/24
 import unittest
 import tushare.stock.trading as fd
 
+
 class Test(unittest.TestCase):
 
     def set_data(self):
         self.code = '600848'
         self.start = ''
         self.end = ''
-        
+
     def test_bar_data(self):
         self.set_data()
-        print(fd.bar(self.code, self.start, self.end))
-        
+        print(fd.bar(code=self.code,
+              start_day=self.start, end_day=self.end))
+
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
-    unittest.main()
+    # unittest.main()
+    print(fd.bar(code='600848'))

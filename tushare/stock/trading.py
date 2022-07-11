@@ -947,6 +947,10 @@ def bar(code, conn=None, start_date=None, end_date=None, freq='D', asset='E',
     code/open/close/high/low/avg_price：均价  position：持仓量  vol：成交总量
     """
     code = code.strip().upper()
+
+    if conn is None:
+        conn = get_apis()
+
     for _ in range(retry_count):
         try:
             if conn is None:

@@ -4,11 +4,13 @@
     "python.autoComplete.addBrackets": true,
     "python.autoComplete.extraPaths": [
         "./tushare",
-        "./tushare/tushare"
+        "./tushare/tushare",
+        "../pytdx/pytdx"
     ],
     "python.analysis.extraPaths": [
         "./tushare",
-        "./tushare/tushare"
+        "./tushare/tushare",
+        "../pytdx/pytdx"
     ],
     "python.jediEnable": false,
     "python.envFile": "${workspaceFolder}/.env",
