@@ -16,11 +16,13 @@ class Test(unittest.TestCase):
 
     def test_bar_data(self):
         self.set_data()
-        print(fd.bar(code=self.code,
-              start_day=self.start, end_day=self.end))
+        self.cons = fd.get_apis()
+        if self.cons is not None:
+            print(fd.bar(code=self.code, conn=self.cons))
+            fd.close_apis(self.cons)
+            self.cons = None
 
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
-    # unittest.main()
-    print(fd.bar(code='600848'))
+    unittest.main()
