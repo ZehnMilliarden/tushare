@@ -8,7 +8,6 @@ Created on 2017/09/23
 """
 from tushare.stock import cons as ct
 
-
 def api(retry_count=3):
     from pytdx.hq import TdxHq_API
     for _ in range(retry_count):

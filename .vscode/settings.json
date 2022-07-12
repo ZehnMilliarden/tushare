@@ -5,15 +5,17 @@
     "python.autoComplete.extraPaths": [
         "./tushare",
         "./tushare/tushare",
-        "../pytdx/pytdx"
+        "../pytdx/pytdx",
+        "../pytdx"
     ],
     "python.analysis.extraPaths": [
         "./tushare",
         "./tushare/tushare",
-        "../pytdx/pytdx"
+        "../pytdx/pytdx",
+        "../pytdx"
     ],
     "python.jediEnable": false,
-    "python.envFile": "${workspaceFolder}/.env",
+    "python.envFile": "${workspaceFolder}/.vscode/.env",
     "python.analysis.completeFunctionParens": true,
     "terminal.integrated.env.windows": {
         "PYTHONPATH": "${workspaceRoot}"

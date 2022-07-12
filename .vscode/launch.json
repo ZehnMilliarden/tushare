@@ -11,10 +11,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": false,
-            "evn": {
-                "PYTHONPATH": "${workspaceRoot}"
-            },
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.vscode/.env"
         },
         {
             "name": "Python: SimpleTest",
@@ -23,10 +20,7 @@
             "program": "${workspaceRoot}/studio/simpletest.py",
             "console": "integratedTerminal",
             "justMyCode": false,
-            "evn": {
-                "PYTHONPATH": "${workspaceRoot}"
-            },
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.vscode/.env"
         },
         {
             "name": "Python: specail_test",
@@ -35,10 +29,7 @@
             "program": "${workspaceRoot}/test/bar_test.py",
             "console": "integratedTerminal",
             "justMyCode": false,
-            "evn": {
-                "PYTHONPATH": "${workspaceRoot}"
-            },
-            "envFile": "${workspaceFolder}/.env"
+            "envFile": "${workspaceFolder}/.vscode/.env",
         }
     ]
 }

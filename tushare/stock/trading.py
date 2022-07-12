@@ -971,8 +971,7 @@ def bar(code, conn=None, start_date=None, end_date=None, freq='D', asset='E',
                 for i in range(100):
                     ds = func(ct.KTYPE[ktype], mkcode, code, i * 800, 800)
                     df = api.to_df(ds)
-                    data = data.append(df) if i == 0 else df.append(
-                        data,  ignore_index=True)
+                    data = pd.concat([data,df]) if i == 0 else pd.concat([df,data], ignore_index=True)
                     if len(ds) < 800:
                         break
                 data['datetime'] = data['datetime'].apply(
