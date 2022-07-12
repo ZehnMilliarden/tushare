@@ -26,7 +26,7 @@
             "name": "Python: specail_test",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceRoot}/test/bar_test.py",
+            "program": "${workspaceRoot}/test/classifying_test.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "envFile": "${workspaceFolder}/.vscode/.env",
