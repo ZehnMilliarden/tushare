@@ -1,4 +1,4 @@
-# -*- coding:utf-8 -*- 
+# -*- coding:utf-8 -*-
 """
 基本面数据接口 
 Created on 2015/01/18
@@ -6,24 +6,28 @@ Created on 2015/01/18
 @group : waditu
 @contact: jimmysoa@sina.cn
 """
+from tushare.util import dateu as du
 import pandas as pd
 from tushare.stock import cons as ct
 import lxml.html
 from lxml import etree
 import re
 import time
-v = pd.__version__ 
-if int(v.split('.')[1])>=25 or int(v.split('.')[0])>0:
+v = pd.__version__
+if int(v.split('.')[1]) >= 25 or int(v.split('.')[0]) > 0:
     from io import StringIO
-else:    
+else:
     from pandas.compat import StringIO
-from tushare.util import dateu as du
 try:
     from urllib.request import urlopen, Request
 except ImportError:
     from urllib2 import urlopen, Request
 
+
 def get_stock_basics(date=None):
+    print("接口失效")
+    pass
+
     """
         获取沪深上市公司基本情况
     Parameters
@@ -54,11 +58,12 @@ def get_stock_basics(date=None):
     if wdate < '20160809':
         return None
     datepre = '' if date is None else wdate[0:4] + wdate[4:6] + '/'
-    request = Request(ct.ALL_STOCK_BASICS_FILE%(datepre, '' if date is None else wdate))
+    request = Request(ct.ALL_STOCK_BASICS_FILE %
+                      (datepre, '' if date is None else wdate))
     text = urlopen(request, timeout=10).read()
     text = text.decode('GBK')
     text = text.replace('--', '')
-    df = pd.read_csv(StringIO(text), dtype={'code':'object'})
+    df = pd.read_csv(StringIO(text), dtype={'code': 'object'})
     df = df.set_index('code')
     return df
 
@@ -71,7 +76,7 @@ def get_report_data(year, quarter):
     year:int 年度 e.g:2014
     quarter:int 季度 :1、2、3、4，只能输入这4个季度
        说明：由于是从网站获取的数据，需要一页页抓取，速度取决于您当前网络速度
-       
+
     Return
     --------
     DataFrame
@@ -87,12 +92,12 @@ def get_report_data(year, quarter):
         distrib,分配方案
         report_date,发布日期
     """
-    if ct._check_input(year,quarter) is True:
+    if ct._check_input(year, quarter) is True:
         ct._write_head()
-        df =  _get_report_data(year, quarter, 1, pd.DataFrame())
+        df = _get_report_data(year, quarter, 1, pd.DataFrame())
         if df is not None:
-#             df = df.drop_duplicates('code')
-            df['code'] = df['code'].map(lambda x:str(x).zfill(6))
+            #             df = df.drop_duplicates('code')
+            df['code'] = df['code'].map(lambda x: str(x).zfill(6))
         return df
 
 
@@ -102,8 +107,8 @@ def _get_report_data(year, quarter, pageNo, dataArr,
     for _ in range(retry_count):
         time.sleep(pause)
         try:
-            request = Request(ct.REPORT_URL%(ct.P_TYPE['http'], ct.DOMAINS['vsf'], ct.PAGES['fd'],
-                             year, quarter, pageNo, ct.PAGE_NUM[1]))
+            request = Request(ct.REPORT_URL % (ct.P_TYPE['http'], ct.DOMAINS['vsf'], ct.PAGES['fd'],
+                                               year, quarter, pageNo, ct.PAGE_NUM[1]))
             text = urlopen(request, timeout=10).read()
             text = text.decode('GBK')
             text = text.replace('--', '')
@@ -114,13 +119,13 @@ def _get_report_data(year, quarter, pageNo, dataArr,
             else:
                 sarr = [etree.tostring(node) for node in res]
             sarr = ''.join(sarr)
-            sarr = '<table>%s</table>'%sarr
+            sarr = '<table>%s</table>' % sarr
             df = pd.read_html(sarr)[0]
             df = df.drop(11, axis=1)
             df.columns = ct.REPORT_COLS
-            dataArr = dataArr.append(df, ignore_index=True)
+            dataArr = pd.concat([dataArr, df], ignore_index=True)
             nextPage = html.xpath('//div[@class=\"pages\"]/a[last()]/@onclick')
-            if len(nextPage)>0:
+            if len(nextPage) > 0:
                 pageNo = re.findall(r'\d+', nextPage[0])[0]
                 return _get_report_data(year, quarter, pageNo, dataArr)
             else:
@@ -138,7 +143,7 @@ def get_profit_data(year, quarter):
     year:int 年度 e.g:2014
     quarter:int 季度 :1、2、3、4，只能输入这4个季度
        说明：由于是从网站获取的数据，需要一页页抓取，速度取决于您当前网络速度
-       
+
     Return
     --------
     DataFrame
@@ -154,10 +159,10 @@ def get_profit_data(year, quarter):
     """
     if ct._check_input(year, quarter) is True:
         ct._write_head()
-        data =  _get_profit_data(year, quarter, 1, pd.DataFrame())
+        data = _get_profit_data(year, quarter, 1, pd.DataFrame())
         if data is not None:
-#             data = data.drop_duplicates('code')
-            data['code'] = data['code'].map(lambda x:str(x).zfill(6))
+            #             data = data.drop_duplicates('code')
+            data['code'] = data['code'].map(lambda x: str(x).zfill(6))
         return data
 
 
@@ -167,9 +172,9 @@ def _get_profit_data(year, quarter, pageNo, dataArr,
     for _ in range(retry_count):
         time.sleep(pause)
         try:
-            request = Request(ct.PROFIT_URL%(ct.P_TYPE['http'], ct.DOMAINS['vsf'],
-                                                  ct.PAGES['fd'], year,
-                                                  quarter, pageNo, ct.PAGE_NUM[1]))
+            request = Request(ct.PROFIT_URL % (ct.P_TYPE['http'], ct.DOMAINS['vsf'],
+                                               ct.PAGES['fd'], year,
+                                               quarter, pageNo, ct.PAGE_NUM[1]))
             text = urlopen(request, timeout=10).read()
             text = text.decode('GBK')
             text = text.replace('--', '')
@@ -180,12 +185,12 @@ def _get_profit_data(year, quarter, pageNo, dataArr,
             else:
                 sarr = [etree.tostring(node) for node in res]
             sarr = ''.join(sarr)
-            sarr = '<table>%s</table>'%sarr
+            sarr = '<table>%s</table>' % sarr
             df = pd.read_html(sarr)[0]
-            df.columns=ct.PROFIT_COLS
-            dataArr = dataArr.append(df, ignore_index=True)
+            df.columns = ct.PROFIT_COLS
+            dataArr = pd.concat([dataArr, df], ignore_index=True)
             nextPage = html.xpath('//div[@class=\"pages\"]/a[last()]/@onclick')
-            if len(nextPage)>0:
+            if len(nextPage) > 0:
                 pageNo = re.findall(r'\d+', nextPage[0])[0]
                 return _get_profit_data(year, quarter, pageNo, dataArr)
             else:
@@ -203,7 +208,7 @@ def get_operation_data(year, quarter):
     year:int 年度 e.g:2014
     quarter:int 季度 :1、2、3、4，只能输入这4个季度
        说明：由于是从网站获取的数据，需要一页页抓取，速度取决于您当前网络速度
-       
+
     Return
     --------
     DataFrame
@@ -218,10 +223,10 @@ def get_operation_data(year, quarter):
     """
     if ct._check_input(year, quarter) is True:
         ct._write_head()
-        data =  _get_operation_data(year, quarter, 1, pd.DataFrame())
+        data = _get_operation_data(year, quarter, 1, pd.DataFrame())
         if data is not None:
-#             data = data.drop_duplicates('code')
-            data['code'] = data['code'].map(lambda x:str(x).zfill(6))
+            #             data = data.drop_duplicates('code')
+            data['code'] = data['code'].map(lambda x: str(x).zfill(6))
         return data
 
 
@@ -231,9 +236,9 @@ def _get_operation_data(year, quarter, pageNo, dataArr,
     for _ in range(retry_count):
         time.sleep(pause)
         try:
-            request = Request(ct.OPERATION_URL%(ct.P_TYPE['http'], ct.DOMAINS['vsf'],
-                                                     ct.PAGES['fd'], year,
-                                                     quarter, pageNo, ct.PAGE_NUM[1]))
+            request = Request(ct.OPERATION_URL % (ct.P_TYPE['http'], ct.DOMAINS['vsf'],
+                                                  ct.PAGES['fd'], year,
+                                                  quarter, pageNo, ct.PAGE_NUM[1]))
             text = urlopen(request, timeout=10).read()
             text = text.decode('GBK')
             text = text.replace('--', '')
@@ -244,12 +249,12 @@ def _get_operation_data(year, quarter, pageNo, dataArr,
             else:
                 sarr = [etree.tostring(node) for node in res]
             sarr = ''.join(sarr)
-            sarr = '<table>%s</table>'%sarr
+            sarr = '<table>%s</table>' % sarr
             df = pd.read_html(sarr)[0]
-            df.columns=ct.OPERATION_COLS
-            dataArr = dataArr.append(df, ignore_index=True)
+            df.columns = ct.OPERATION_COLS
+            dataArr = pd.concat([dataArr, df], ignore_index=True)
             nextPage = html.xpath('//div[@class=\"pages\"]/a[last()]/@onclick')
-            if len(nextPage)>0:
+            if len(nextPage) > 0:
                 pageNo = re.findall(r'\d+', nextPage[0])[0]
                 return _get_operation_data(year, quarter, pageNo, dataArr)
             else:
@@ -267,7 +272,7 @@ def get_growth_data(year, quarter):
     year:int 年度 e.g:2014
     quarter:int 季度 :1、2、3、4，只能输入这4个季度
        说明：由于是从网站获取的数据，需要一页页抓取，速度取决于您当前网络速度
-       
+
     Return
     --------
     DataFrame
@@ -282,22 +287,22 @@ def get_growth_data(year, quarter):
     """
     if ct._check_input(year, quarter) is True:
         ct._write_head()
-        data =  _get_growth_data(year, quarter, 1, pd.DataFrame())
+        data = _get_growth_data(year, quarter, 1, pd.DataFrame())
         if data is not None:
-#             data = data.drop_duplicates('code')
-            data['code'] = data['code'].map(lambda x:str(x).zfill(6))
+            #             data = data.drop_duplicates('code')
+            data['code'] = data['code'].map(lambda x: str(x).zfill(6))
         return data
 
 
-def _get_growth_data(year, quarter, pageNo, dataArr, 
+def _get_growth_data(year, quarter, pageNo, dataArr,
                      retry_count=3, pause=0.001):
     ct._write_console()
     for _ in range(retry_count):
         time.sleep(pause)
         try:
-            request = Request(ct.GROWTH_URL%(ct.P_TYPE['http'], ct.DOMAINS['vsf'],
-                                                  ct.PAGES['fd'], year,
-                                                  quarter, pageNo, ct.PAGE_NUM[1]))
+            request = Request(ct.GROWTH_URL % (ct.P_TYPE['http'], ct.DOMAINS['vsf'],
+                                               ct.PAGES['fd'], year,
+                                               quarter, pageNo, ct.PAGE_NUM[1]))
             text = urlopen(request, timeout=50).read()
             text = text.decode('GBK')
             text = text.replace('--', '')
@@ -308,12 +313,12 @@ def _get_growth_data(year, quarter, pageNo, dataArr,
             else:
                 sarr = [etree.tostring(node) for node in res]
             sarr = ''.join(sarr)
-            sarr = '<table>%s</table>'%sarr
+            sarr = '<table>%s</table>' % sarr
             df = pd.read_html(sarr)[0]
-            df.columns=ct.GROWTH_COLS
-            dataArr = dataArr.append(df, ignore_index=True)
+            df.columns = ct.GROWTH_COLS
+            dataArr = pd.concat([dataArr, df], ignore_index=True)
             nextPage = html.xpath('//div[@class=\"pages\"]/a[last()]/@onclick')
-            if len(nextPage)>0:
+            if len(nextPage) > 0:
                 pageNo = re.findall(r'\d+', nextPage[0])[0]
                 return _get_growth_data(year, quarter, pageNo, dataArr)
             else:
@@ -331,7 +336,7 @@ def get_debtpaying_data(year, quarter):
     year:int 年度 e.g:2014
     quarter:int 季度 :1、2、3、4，只能输入这4个季度
        说明：由于是从网站获取的数据，需要一页页抓取，速度取决于您当前网络速度
-       
+
     Return
     --------
     DataFrame
@@ -346,10 +351,10 @@ def get_debtpaying_data(year, quarter):
     """
     if ct._check_input(year, quarter) is True:
         ct._write_head()
-        df =  _get_debtpaying_data(year, quarter, 1, pd.DataFrame())
+        df = _get_debtpaying_data(year, quarter, 1, pd.DataFrame())
         if df is not None:
-#             df = df.drop_duplicates('code')
-            df['code'] = df['code'].map(lambda x:str(x).zfill(6))
+            #             df = df.drop_duplicates('code')
+            df['code'] = df['code'].map(lambda x: str(x).zfill(6))
         return df
 
 
@@ -359,9 +364,9 @@ def _get_debtpaying_data(year, quarter, pageNo, dataArr,
     for _ in range(retry_count):
         time.sleep(pause)
         try:
-            request = Request(ct.DEBTPAYING_URL%(ct.P_TYPE['http'], ct.DOMAINS['vsf'],
-                                                      ct.PAGES['fd'], year,
-                                                      quarter, pageNo, ct.PAGE_NUM[1]))
+            request = Request(ct.DEBTPAYING_URL % (ct.P_TYPE['http'], ct.DOMAINS['vsf'],
+                                                   ct.PAGES['fd'], year,
+                                                   quarter, pageNo, ct.PAGE_NUM[1]))
             text = urlopen(request, timeout=10).read()
             text = text.decode('GBK')
             html = lxml.html.parse(StringIO(text))
@@ -371,12 +376,12 @@ def _get_debtpaying_data(year, quarter, pageNo, dataArr,
             else:
                 sarr = [etree.tostring(node) for node in res]
             sarr = ''.join(sarr)
-            sarr = '<table>%s</table>'%sarr
+            sarr = '<table>%s</table>' % sarr
             df = pd.read_html(sarr)[0]
             df.columns = ct.DEBTPAYING_COLS
-            dataArr = dataArr.append(df, ignore_index=True)
+            dataArr = pd.concat([dataArr, df], ignore_index=True)
             nextPage = html.xpath('//div[@class=\"pages\"]/a[last()]/@onclick')
-            if len(nextPage)>0:
+            if len(nextPage) > 0:
                 pageNo = re.findall(r'\d+', nextPage[0])[0]
                 return _get_debtpaying_data(year, quarter, pageNo, dataArr)
             else:
@@ -384,8 +389,8 @@ def _get_debtpaying_data(year, quarter, pageNo, dataArr,
         except Exception as e:
             pass
     raise IOError(ct.NETWORK_URL_ERROR_MSG)
- 
- 
+
+
 def get_cashflow_data(year, quarter):
     """
         获取现金流量数据
@@ -394,7 +399,7 @@ def get_cashflow_data(year, quarter):
     year:int 年度 e.g:2014
     quarter:int 季度 :1、2、3、4，只能输入这4个季度
        说明：由于是从网站获取的数据，需要一页页抓取，速度取决于您当前网络速度
-       
+
     Return
     --------
     DataFrame
@@ -408,10 +413,10 @@ def get_cashflow_data(year, quarter):
     """
     if ct._check_input(year, quarter) is True:
         ct._write_head()
-        df =  _get_cashflow_data(year, quarter, 1, pd.DataFrame())
+        df = _get_cashflow_data(year, quarter, 1, pd.DataFrame())
         if df is not None:
-#             df = df.drop_duplicates('code')
-            df['code'] = df['code'].map(lambda x:str(x).zfill(6))
+            #             df = df.drop_duplicates('code')
+            df['code'] = df['code'].map(lambda x: str(x).zfill(6))
         return df
 
 
@@ -421,9 +426,9 @@ def _get_cashflow_data(year, quarter, pageNo, dataArr,
     for _ in range(retry_count):
         time.sleep(pause)
         try:
-            request = Request(ct.CASHFLOW_URL%(ct.P_TYPE['http'], ct.DOMAINS['vsf'],
-                                                    ct.PAGES['fd'], year,
-                                                    quarter, pageNo, ct.PAGE_NUM[1]))
+            request = Request(ct.CASHFLOW_URL % (ct.P_TYPE['http'], ct.DOMAINS['vsf'],
+                                                 ct.PAGES['fd'], year,
+                                                 quarter, pageNo, ct.PAGE_NUM[1]))
             text = urlopen(request, timeout=10).read()
             text = text.decode('GBK')
             text = text.replace('--', '')
@@ -434,12 +439,12 @@ def _get_cashflow_data(year, quarter, pageNo, dataArr,
             else:
                 sarr = [etree.tostring(node) for node in res]
             sarr = ''.join(sarr)
-            sarr = '<table>%s</table>'%sarr
+            sarr = '<table>%s</table>' % sarr
             df = pd.read_html(sarr)[0]
             df.columns = ct.CASHFLOW_COLS
-            dataArr = dataArr.append(df, ignore_index=True)
+            dataArr = pd.concat([dataArr, df], ignore_index=True)
             nextPage = html.xpath('//div[@class=\"pages\"]/a[last()]/@onclick')
-            if len(nextPage)>0:
+            if len(nextPage) > 0:
                 pageNo = re.findall(r'\d+', nextPage[0])[0]
                 return _get_cashflow_data(year, quarter, pageNo, dataArr)
             else:
@@ -447,15 +452,16 @@ def _get_cashflow_data(year, quarter, pageNo, dataArr,
         except Exception as e:
             pass
     raise IOError(ct.NETWORK_URL_ERROR_MSG)
-       
-       
+
+
 def _data_path():
     import os
     import inspect
-    caller_file = inspect.stack()[1][1]  
-    pardir = os.path.abspath(os.path.join(os.path.dirname(caller_file), os.path.pardir))
+    caller_file = inspect.stack()[1][1]
+    pardir = os.path.abspath(os.path.join(
+        os.path.dirname(caller_file), os.path.pardir))
     return os.path.abspath(os.path.join(pardir, os.path.pardir))
-  
+
 
 def get_balance_sheet(code):
     """
@@ -463,20 +469,21 @@ def get_balance_sheet(code):
     Parameters
     --------
     code:str 股票代码 e.g:600518
-       
+
     Return
     --------
     DataFrame
         行列名称为中文且数目较多，建议获取数据后保存到本地查看
     """
     if code.isdigit():
-        request = Request(ct.SINA_BALANCESHEET_URL%(code))
+        request = Request(ct.SINA_BALANCESHEET_URL % (code))
         text = urlopen(request, timeout=10).read()
         text = text.decode('GBK')
         text = text.replace('\t\n', '\r\n')
         text = text.replace('\t', ',')
-        df = pd.read_csv(StringIO(text), dtype={'code':'object'})
+        df = pd.read_csv(StringIO(text), dtype={'code': 'object'})
         return df
+
 
 def get_profit_statement(code):
     """
@@ -484,40 +491,39 @@ def get_profit_statement(code):
     Parameters
     --------
     code:str 股票代码 e.g:600518
-       
+
     Return
     --------
     DataFrame
         行列名称为中文且数目较多，建议获取数据后保存到本地查看
     """
     if code.isdigit():
-        request = Request(ct.SINA_PROFITSTATEMENT_URL%(code))
+        request = Request(ct.SINA_PROFITSTATEMENT_URL % (code))
         text = urlopen(request, timeout=10).read()
         text = text.decode('GBK')
         text = text.replace('\t\n', '\r\n')
         text = text.replace('\t', ',')
-        df = pd.read_csv(StringIO(text), dtype={'code':'object'})
+        df = pd.read_csv(StringIO(text), dtype={'code': 'object'})
         return df
 
-      
+
 def get_cash_flow(code):
     """
         获取某股票的历史所有时期现金流表
     Parameters
     --------
     code:str 股票代码 e.g:600518
-       
+
     Return
     --------
     DataFrame
         行列名称为中文且数目较多，建议获取数据后保存到本地查看
     """
     if code.isdigit():
-        request = Request(ct.SINA_CASHFLOW_URL%(code))
+        request = Request(ct.SINA_CASHFLOW_URL % (code))
         text = urlopen(request, timeout=10).read()
         text = text.decode('GBK')
         text = text.replace('\t\n', '\r\n')
         text = text.replace('\t', ',')
-        df = pd.read_csv(StringIO(text), dtype={'code':'object'})
+        df = pd.read_csv(StringIO(text), dtype={'code': 'object'})
         return df
-
