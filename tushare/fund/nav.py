@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
 """
-获取基金净值数据接口 
+获取基金净值数据接口
 Created on 2016/04/03
 @author: leo
 @group : lazytech
@@ -9,6 +9,7 @@ Created on 2016/04/03
 """
 
 from __future__ import division
+import string
 import time
 import json
 import re
@@ -65,13 +66,13 @@ def get_nav_open(fund_type='all'):
         fund_dfs = []
         for page in range(1, pages+1):
             fund_dfs = _parse_fund_data(ct.SINA_NAV_DATA_URL %
-                                       (ct.P_TYPE['http'], ct.DOMAINS['vsf'],
-                                        ct.NAV_OPEN_KEY[fund_type],
-                                        ct.NAV_OPEN_API[fund_type],
-                                        page,
-                                        limit_cnt,
-                                        ct.NAV_OPEN_T2[fund_type],
-                                        ct.NAV_OPEN_T3))
+                                        (ct.P_TYPE['http'], ct.DOMAINS['vsf'],
+                                         ct.NAV_OPEN_KEY[fund_type],
+                                         ct.NAV_OPEN_API[fund_type],
+                                         page,
+                                         limit_cnt,
+                                         ct.NAV_OPEN_T2[fund_type],
+                                         ct.NAV_OPEN_T3))
 
         return pd.concat(fund_dfs, ignore_index=True)
 
@@ -127,7 +128,7 @@ def get_nav_close(fund_type='all', sub_type='all'):
 
     fund_df = _parse_fund_data(ct.SINA_NAV_DATA_URL %
                                (ct.P_TYPE['http'], ct.DOMAINS['vsf'],
-                                ct.NAV_OPEN_KEY, ct.NAV_CLOSE_API, 
+                                ct.NAV_OPEN_KEY, ct.NAV_CLOSE_API,
                                 ct.NAV_DEFAULT_PAGE,
                                 nums,
                                 ct.NAV_CLOSE_T2[fund_type],
@@ -181,7 +182,7 @@ def get_nav_grading(fund_type='all', sub_type='all'):
 
     fund_df = _parse_fund_data(ct.SINA_NAV_DATA_URL %
                                (ct.P_TYPE['http'], ct.DOMAINS['vsf'],
-                                ct.NAV_GRADING_KEY, ct.NAV_GRADING_API, 
+                                ct.NAV_GRADING_KEY, ct.NAV_GRADING_API,
                                 ct.NAV_DEFAULT_PAGE,
                                 nums,
                                 ct.NAV_GRADING_T2[fund_type],
@@ -221,8 +222,7 @@ def get_nav_history(code, start=None, end=None, retry_count=3, pause=0.001, time
     # 判断基金类型
     ismonetary = False  # 是否是债券型和货币型基金
     df_fund = get_fund_info(code)
-
-    fund_type = df_fund.loc[0]['Type2Name']
+    fund_type = df_fund.loc[code]['Type2Name']
     if (fund_type.find(u'债券型') != -1) or (fund_type.find(u'货币型') != -1):
         ismonetary = True
 
@@ -403,7 +403,7 @@ def _parse_nav_history_data(code, start, end, nums, ismonetary=False, retry_coun
             fund_df['dwsy'] = fund_df['dwsy'].astype(float)
             fund_df.rename(columns=ct.DICT_NAV_MONETARY, inplace=True)
 
-        #fund_df.fillna(0, inplace=True)
+        # fund_df.fillna(0, inplace=True)
 
         if fund_df['date'].dtypes == np.object:
             fund_df['date'] = pd.to_datetime(fund_df['date'])
