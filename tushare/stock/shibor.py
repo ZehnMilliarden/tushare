@@ -11,11 +11,8 @@ import numpy as np
 from tushare.stock import cons as ct
 from tushare.util import dateu as du
 from tushare.util.netbase import Client
-v = pd.__version__ 
-if int(v.split('.')[1])>=25 or int(v.split('.')[0])>0:
-    from io import StringIO
-else:    
-    from pandas.compat import StringIO
+from io import StringIO
+
 
 def shibor_data(year=None):
     """
@@ -23,7 +20,7 @@ def shibor_data(year=None):
     Parameters
     ------
       year:年份(int)
-      
+
     Return
     ------
     date:日期
@@ -40,7 +37,7 @@ def shibor_data(year=None):
     lab = ct.SHIBOR_TYPE['Shibor']
     lab = lab.encode('utf-8') if ct.PY3 else lab
     try:
-        clt = Client(url=ct.SHIBOR_DATA_URL%(ct.P_TYPE['http'], ct.DOMAINS['shibor'],
+        clt = Client(url=ct.SHIBOR_DATA_URL % (ct.P_TYPE['http'], ct.DOMAINS['shibor'],
                                                ct.PAGES['dw'], 'Shibor',
                                                year, lab,
                                                year))
@@ -56,13 +53,14 @@ def shibor_data(year=None):
     except:
         return None
 
+
 def shibor_quote_data(year=None):
     """
     获取Shibor银行报价数据
     Parameters
     ------
       year:年份(int)
-      
+
     Return
     ------
     date:日期
@@ -89,7 +87,7 @@ def shibor_quote_data(year=None):
     lab = ct.SHIBOR_TYPE['Quote']
     lab = lab.encode('utf-8') if ct.PY3 else lab
     try:
-        clt = Client(url=ct.SHIBOR_DATA_URL%(ct.P_TYPE['http'], ct.DOMAINS['shibor'],
+        clt = Client(url=ct.SHIBOR_DATA_URL % (ct.P_TYPE['http'], ct.DOMAINS['shibor'],
                                                ct.PAGES['dw'], 'Quote',
                                                year, lab,
                                                year))
@@ -106,13 +104,14 @@ def shibor_quote_data(year=None):
     except:
         return None
 
+
 def shibor_ma_data(year=None):
     """
     获取Shibor均值数据
     Parameters
     ------
       year:年份(int)
-      
+
     Return
     ------
     date:日期
@@ -122,7 +121,7 @@ def shibor_ma_data(year=None):
     lab = ct.SHIBOR_TYPE['Tendency']
     lab = lab.encode('utf-8') if ct.PY3 else lab
     try:
-        clt = Client(url=ct.SHIBOR_DATA_URL%(ct.P_TYPE['http'], ct.DOMAINS['shibor'],
+        clt = Client(url=ct.SHIBOR_DATA_URL % (ct.P_TYPE['http'], ct.DOMAINS['shibor'],
                                                ct.PAGES['dw'], 'Shibor_Tendency',
                                                year, lab,
                                                year))
@@ -145,7 +144,7 @@ def lpr_data(year=None):
     Parameters
     ------
       year:年份(int)
-      
+
     Return
     ------
     date:日期
@@ -155,7 +154,7 @@ def lpr_data(year=None):
     lab = ct.SHIBOR_TYPE['LPR']
     lab = lab.encode('utf-8') if ct.PY3 else lab
     try:
-        clt = Client(url=ct.SHIBOR_DATA_URL%(ct.P_TYPE['http'], ct.DOMAINS['shibor'],
+        clt = Client(url=ct.SHIBOR_DATA_URL % (ct.P_TYPE['http'], ct.DOMAINS['shibor'],
                                                ct.PAGES['dw'], 'LPR',
                                                year, lab,
                                                year))
@@ -170,7 +169,7 @@ def lpr_data(year=None):
         return df
     except:
         return None
-    
+
 
 def lpr_ma_data(year=None):
     """
@@ -178,7 +177,7 @@ def lpr_ma_data(year=None):
     Parameters
     ------
       year:年份(int)
-      
+
     Return
     ------
     date:日期
@@ -190,7 +189,7 @@ def lpr_ma_data(year=None):
     lab = ct.SHIBOR_TYPE['LPR_Tendency']
     lab = lab.encode('utf-8') if ct.PY3 else lab
     try:
-        clt = Client(url=ct.SHIBOR_DATA_URL%(ct.P_TYPE['http'], ct.DOMAINS['shibor'],
+        clt = Client(url=ct.SHIBOR_DATA_URL % (ct.P_TYPE['http'], ct.DOMAINS['shibor'],
                                                ct.PAGES['dw'], 'LPR_Tendency',
                                                year, lab,
                                                year))
@@ -205,6 +204,3 @@ def lpr_ma_data(year=None):
         return df
     except:
         return None
-    
-    
-

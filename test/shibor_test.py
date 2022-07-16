@@ -7,7 +7,7 @@ import tushare.stock.shibor as fd
 class Test(unittest.TestCase):
 
     def set_data(self):
-        self.year = 2015
+        self.year = 2021
 #         self.year = None
 
     def test_shibor_data(self):

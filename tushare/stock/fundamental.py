@@ -6,6 +6,7 @@ Created on 2015/01/18
 @group : waditu
 @contact: jimmysoa@sina.cn
 """
+import sys
 from tushare.util import dateu as du
 import pandas as pd
 from tushare.stock import cons as ct
@@ -13,19 +14,12 @@ import lxml.html
 from lxml import etree
 import re
 import time
-v = pd.__version__
-if int(v.split('.')[1]) >= 25 or int(v.split('.')[0]) > 0:
-    from io import StringIO
-else:
-    from pandas.compat import StringIO
-try:
-    from urllib.request import urlopen, Request
-except ImportError:
-    from urllib2 import urlopen, Request
+from io import StringIO
+from urllib.request import urlopen, Request
 
 
 def get_stock_basics(date=None):
-    print("接口失效")
+    print(sys._getframe().f_code.co_name + "接口失效")
     pass
 
     """

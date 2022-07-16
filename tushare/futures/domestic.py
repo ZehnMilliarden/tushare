@@ -10,19 +10,13 @@ import json
 import datetime
 import pandas as pd
 from tushare.futures import domestic_cons as ct
-try:
-    from urllib.request import urlopen, Request
-    from urllib.parse import urlencode
-    from urllib.error import HTTPError
-    from http.client import IncompleteRead
-except ImportError:
-    from urllib import urlencode
-    from urllib2 import urlopen, Request
-    from urllib2 import HTTPError
-    from httplib import IncompleteRead
+from urllib.request import urlopen, Request
+from urllib.parse import urlencode
+from urllib.error import HTTPError
+from http.client import IncompleteRead
 
 
-def get_cffex_daily(date = None):
+def get_cffex_daily(date=None):
     """
         获取中金所日交易数据
     Parameters
@@ -48,22 +42,23 @@ def get_cffex_daily(date = None):
     """
     day = ct.convert_date(date) if date is not None else datetime.date.today()
     try:
-        html = urlopen(Request(ct.CFFEX_DAILY_URL % (day.strftime('%Y%m'), 
-                                                     day.strftime('%d'), day.strftime('%Y%m%d')), 
+        html = urlopen(Request(ct.CFFEX_DAILY_URL % (day.strftime('%Y%m'),
+                                                     day.strftime('%d'), day.strftime('%Y%m%d')),
                                headers=ct.SIM_HAEDERS)).read().decode('gbk', 'ignore')
     except HTTPError as reason:
         if reason.code != 404:
-            print(ct.CFFEX_DAILY_URL % (day.strftime('%Y%m'), day.strftime('%d'), 
+            print(ct.CFFEX_DAILY_URL % (day.strftime('%Y%m'), day.strftime('%d'),
                                         day.strftime('%Y%m%d')), reason)
         return
 
     if html.find(u'网页错误') >= 0:
         return
-    html = [i.replace(' ','').split(',') for i in html.split('\n')[:-2] if i[0][0] != u'小' ]
-    
-    if html[0][0]!=u'合约代码':
+    html = [i.replace(' ', '').split(',')
+            for i in html.split('\n')[:-2] if i[0][0] != u'小']
+
+    if html[0][0] != u'合约代码':
         return
-    
+
     dict_data = list()
     day_const = day.strftime('%Y%m%d')
     for row in html[1:]:
@@ -71,17 +66,17 @@ def get_cffex_daily(date = None):
         if not m:
             continue
         row_dict = {'date': day_const, 'symbol': row[0], 'variety': m.group(1)}
-        
-        for i,field in enumerate(ct.CFFEX_COLUMNS):
+
+        for i, field in enumerate(ct.CFFEX_COLUMNS):
             if row[i+1] == u"":
                 row_dict[field] = 0.0
             elif field in ['volume', 'open_interest', 'oi_chg']:
-                row_dict[field] = int(row[i+1])        
+                row_dict[field] = int(row[i+1])
             else:
                 row_dict[field] = float(row[i+1])
         row_dict['pre_settle'] = row_dict['close'] - row_dict['change1']
         dict_data.append(row_dict)
-        
+
     return pd.DataFrame(dict_data)[ct.OUTPUT_COLUMNS]
 
 
@@ -138,26 +133,28 @@ def get_czce_daily(date=None, type="future"):
         listed_columns = ct.CZCE_OPTION_COLUMNS
         output_columns = ct.OPTION_OUTPUT_COLUMNS
     else:
-        print('invalid type :' + type + ',type should be one of "future" or "option"')
+        print('invalid type :' + type +
+              ',type should be one of "future" or "option"')
         return
-    
+
     day = ct.convert_date(date) if date is not None else datetime.date.today()
 
     try:
         html = urlopen(Request(url % (day.strftime('%Y'),
-                                                    day.strftime('%Y%m%d')),
+                                      day.strftime('%Y%m%d')),
                                headers=ct.SIM_HAEDERS)).read().decode('gbk', 'ignore')
     except HTTPError as reason:
         if reason.code != 404:
             print(ct.CZCE_DAILY_URL % (day.strftime('%Y'),
-                                       day.strftime('%Y%m%d')), reason)            
+                                       day.strftime('%Y%m%d')), reason)
         return
     if html.find(u'您的访问出错了') >= 0 or html.find(u'无期权每日行情交易记录') >= 0:
         return
-    html = [i.replace(' ','').split('|') for i in html.split('\n')[:-4] if i[0][0] != u'小']
+    html = [i.replace(' ', '').split('|')
+            for i in html.split('\n')[:-4] if i[0][0] != u'小']
     if html[1][0] not in [u'品种月份', u'品种代码']:
-            return
-        
+        return
+
     dict_data = list()
     day_const = int(day.strftime('%Y%m%d'))
     for row in html[2:]:
@@ -165,21 +162,21 @@ def get_czce_daily(date=None, type="future"):
         if not m:
             continue
         row_dict = {'date': day_const, 'symbol': row[0], 'variety': m.group(1)}
-        for i,field in enumerate(listed_columns):
+        for i, field in enumerate(listed_columns):
             if row[i+1] == "\r":
                 row_dict[field] = 0.0
             elif field in ['volume', 'open_interest', 'oi_chg', 'exercise_volume']:
-                row[i+1] = row[i+1].replace(',','')
-                row_dict[field] = int(row[i+1])                
+                row[i+1] = row[i+1].replace(',', '')
+                row_dict[field] = int(row[i+1])
             else:
-                row[i+1] = row[i+1].replace(',','')
+                row[i+1] = row[i+1].replace(',', '')
                 row_dict[field] = float(row[i+1])
         dict_data.append(row_dict)
-        
+
     return pd.DataFrame(dict_data)[output_columns]
 
 
-def get_shfe_vwap(date = None):
+def get_shfe_vwap(date=None):
     """
         获取上期所日成交均价数据
     Parameters
@@ -194,27 +191,27 @@ def get_shfe_vwap(date = None):
                 time_range    vwap时段，分09:00-10:15和09:00-15:00两类
                 vwap          加权平均成交均价
         或 None(给定日期没有数据)
-    """    
+    """
     day = ct.convert_date(date) if date is not None else datetime.date.today()
 
     try:
-        json_data = json.loads(urlopen(Request(ct.SHFE_VWAP_URL % (day.strftime('%Y%m%d')), 
+        json_data = json.loads(urlopen(Request(ct.SHFE_VWAP_URL % (day.strftime('%Y%m%d')),
                                                headers=ct.SIM_HAEDERS)).read().decode('utf8'))
     except HTTPError as reason:
         if reason.code != 404:
-            print(ct.SHFE_DAILY_URL % (day.strftime('%Y%m%d')), reason)            
-        return    
+            print(ct.SHFE_DAILY_URL % (day.strftime('%Y%m%d')), reason)
+        return
 
     if len(json_data['o_currefprice']) == 0:
         return
-    
+
     df = pd.DataFrame(json_data['o_currefprice'])
     df['INSTRUMENTID'] = df['INSTRUMENTID'].str.strip()
     df[':B1'].astype('int16')
-    return df.rename(columns=ct.SHFE_VWAP_COLUMNS)[list(ct.SHFE_VWAP_COLUMNS.values())]    
+    return df.rename(columns=ct.SHFE_VWAP_COLUMNS)[list(ct.SHFE_VWAP_COLUMNS.values())]
 
 
-def get_shfe_daily(date = None):
+def get_shfe_daily(date=None):
     """
         获取上期所日交易数据
     Parameters
@@ -237,27 +234,29 @@ def get_shfe_daily(date = None):
                 pre_settle     前结算价
                 variety       合约类别
         或 None(给定日期没有交易数据)
-    """    
+    """
     day = ct.convert_date(date) if date is not None else datetime.date.today()
 
     try:
-        json_data = json.loads(urlopen(Request(ct.SHFE_DAILY_URL % (day.strftime('%Y%m%d')), 
+        json_data = json.loads(urlopen(Request(ct.SHFE_DAILY_URL % (day.strftime('%Y%m%d')),
                                                headers=ct.SIM_HAEDERS)).read().decode('utf8'))
     except HTTPError as reason:
         if reason.code != 404:
-            print(ct.SHFE_DAILY_URL % (day.strftime('%Y%m%d')), reason)            
-        return    
+            print(ct.SHFE_DAILY_URL % (day.strftime('%Y%m%d')), reason)
+        return
 
     if len(json_data['o_curinstrument']) == 0:
         return
-    
-    df = pd.DataFrame([row for row in json_data['o_curinstrument'] if row['DELIVERYMONTH'] != u'小计' and row['DELIVERYMONTH'] != ''])
+
+    df = pd.DataFrame([row for row in json_data['o_curinstrument']
+                      if row['DELIVERYMONTH'] != u'小计' and row['DELIVERYMONTH'] != ''])
     df['variety'] = df.PRODUCTID.str.slice(0, -6).str.upper()
     df['symbol'] = df['variety'] + df['DELIVERYMONTH']
     df['date'] = day.strftime('%Y%m%d')
     vwap_df = get_shfe_vwap(day)
     if vwap_df is not None:
-        df = pd.merge(df, vwap_df[vwap_df.time_range == '9:00-15:00'], on=['date', 'symbol'], how='left')
+        df = pd.merge(df, vwap_df[vwap_df.time_range ==
+                      '9:00-15:00'], on=['date', 'symbol'], how='left')
         df['turnover'] = df.vwap * df.VOLUME
     else:
         print('Failed to fetch SHFE vwap.', day.strftime('%Y%m%d'))
@@ -266,7 +265,7 @@ def get_shfe_daily(date = None):
     return df[ct.OUTPUT_COLUMNS]
 
 
-def get_dce_daily(date = None, type="future", retries=0):
+def get_dce_daily(date=None, type="future", retries=0):
     """
         获取大连商品交易所日交易数据
     Parameters
@@ -315,20 +314,20 @@ def get_dce_daily(date = None, type="future", retries=0):
     if retries > 3:
         print("maximum retires for DCE market data: ", day.strftime("%Y%m%d"))
         return
-    
+
     if type == 'future':
-        url = ct.DCE_DAILY_URL + '?' + urlencode({"currDate":day.strftime('%Y%m%d'), 
-                                    "year":day.strftime('%Y'), 
-                                    "month": str(int(day.strftime('%m'))-1), 
-                                    "day":day.strftime('%d')})   
+        url = ct.DCE_DAILY_URL + '?' + urlencode({"currDate": day.strftime('%Y%m%d'),
+                                                  "year": day.strftime('%Y'),
+                                                  "month": str(int(day.strftime('%m'))-1),
+                                                  "day": day.strftime('%d')})
         listed_columns = ct.DCE_COLUMNS
         output_columns = ct.OUTPUT_COLUMNS
     elif type == 'option':
-        url = ct.DCE_DAILY_URL + '?' + urlencode({"currDate":day.strftime('%Y%m%d'), 
-                                    "year":day.strftime('%Y'), 
-                                    "month": str(int(day.strftime('%m'))-1), 
-                                    "day":day.strftime('%d'),
-                                    "dayQuotes.trade_type": "1"})   
+        url = ct.DCE_DAILY_URL + '?' + urlencode({"currDate": day.strftime('%Y%m%d'),
+                                                  "year": day.strftime('%Y'),
+                                                  "month": str(int(day.strftime('%m'))-1),
+                                                  "day": day.strftime('%d'),
+                                                  "dayQuotes.trade_type": "1"})
         listed_columns = ct.DCE_OPTION_COLUMNS
         output_columns = ct.OPTION_OUTPUT_COLUMNS
     else:
@@ -336,25 +335,26 @@ def get_dce_daily(date = None, type="future", retries=0):
         return
 
     try:
-        response = urlopen(Request(url, method='POST', headers=ct.DCE_HEADERS)).read().decode('utf8')
+        response = urlopen(
+            Request(url, method='POST', headers=ct.DCE_HEADERS)).read().decode('utf8')
     except IncompleteRead as reason:
         return get_dce_daily(day, retries=retries+1)
     except HTTPError as reason:
         if reason.code == 504:
             return get_dce_daily(day, retries=retries+1)
         elif reason.code != 404:
-            print(ct.DCE_DAILY_URL, reason)            
-        return       
-    
+            print(ct.DCE_DAILY_URL, reason)
+        return
+
     if u'错误：您所请求的网址（URL）无法获取' in response:
         return get_dce_daily(day, retries=retries+1)
     elif u'暂无数据' in response:
         return
-    
+
     data = BeautifulSoup(response, 'html.parser').find_all('tr')
     if len(data) == 0:
         return
-    
+
     dict_data = list()
     implied_data = list()
     for idata in data[1:]:
@@ -364,31 +364,33 @@ def get_dce_daily(date = None, type="future", retries=0):
         if type == 'future':
             row_dict = {'variety': ct.DCE_MAP[x[0].text.strip()]}
             row_dict['symbol'] = row_dict['variety'] + x[1].text.strip()
-            for i,field in enumerate(listed_columns):
+            for i, field in enumerate(listed_columns):
                 field_content = x[i+2].text.strip()
                 if '-' in field_content:
-                    row_dict[field] = 0                
+                    row_dict[field] = 0
                 elif field in ['volume', 'open_interest']:
-                    row_dict[field] = int(field_content.replace(',',''))
+                    row_dict[field] = int(field_content.replace(',', ''))
                 else:
-                    row_dict[field] = float(field_content.replace(',',''))   
+                    row_dict[field] = float(field_content.replace(',', ''))
             dict_data.append(row_dict)
         elif len(x) == 16:
             m = ct.FUTURE_SYMBOL_PATTERN.match(x[1].text.strip())
             if not m:
                 continue
-            row_dict = {'symbol': x[1].text.strip(), 'variety': m.group(1).upper(), 'contract_id': m.group(0)}
-            for i,field in enumerate(listed_columns):
+            row_dict = {'symbol': x[1].text.strip(), 'variety': m.group(
+                1).upper(), 'contract_id': m.group(0)}
+            for i, field in enumerate(listed_columns):
                 field_content = x[i+2].text.strip()
                 if '-' in field_content:
-                    row_dict[field] = 0                
+                    row_dict[field] = 0
                 elif field in ['volume', 'open_interest']:
-                    row_dict[field] = int(field_content.replace(',',''))
+                    row_dict[field] = int(field_content.replace(',', ''))
                 else:
-                    row_dict[field] = float(field_content.replace(',',''))   
+                    row_dict[field] = float(field_content.replace(',', ''))
             dict_data.append(row_dict)
         elif len(x) == 2:
-            implied_data.append({'contract_id': x[0].text.strip(), 'implied_volatility': float(x[1].text.strip())})
+            implied_data.append({'contract_id': x[0].text.strip(
+            ), 'implied_volatility': float(x[1].text.strip())})
     df = pd.DataFrame(dict_data)
     df['date'] = day.strftime('%Y%m%d')
     if type == 'future':
@@ -397,7 +399,7 @@ def get_dce_daily(date = None, type="future", retries=0):
         return pd.merge(df, pd.DataFrame(implied_data), on='contract_id', how='left', indicator=False)[output_columns]
 
 
-def get_future_daily(start = None, end = None, market = 'CFFEX'):
+def get_future_daily(start=None, end=None, market='CFFEX'):
     """
         获取中金所日交易数据
     Parameters
@@ -434,8 +436,9 @@ def get_future_daily(start = None, end = None, market = 'CFFEX'):
     else:
         print('Invalid market.')
         return
-    
-    start = ct.convert_date(start) if start is not None else datetime.date.today()
+
+    start = ct.convert_date(
+        start) if start is not None else datetime.date.today()
     end = ct.convert_date(end) if end is not None else datetime.date.today()
 
     df_list = list()
@@ -443,8 +446,7 @@ def get_future_daily(start = None, end = None, market = 'CFFEX'):
         df = f(start)
         if df is not None:
             df_list.append(df)
-        start += datetime.timedelta(days = 1)
+        start += datetime.timedelta(days=1)
 
     if len(df_list) > 0:
         return pd.concat(df_list)
-

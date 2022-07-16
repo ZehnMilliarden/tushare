@@ -22,15 +22,8 @@ from tushare.util.formula import MA
 import os
 from tushare.util.conns import get_apis, close_apis
 from tushare.stock.fundamental import get_stock_basics
-try:
-    from urllib.request import urlopen, Request
-except ImportError:
-    from urllib2 import urlopen, Request
-v = pd.__version__
-if int(v.split('.')[1]) >= 25 or int(v.split('.')[0]) > 0:
-    from io import StringIO
-else:
-    from pandas.compat import StringIO
+from urllib.request import urlopen, Request
+from io import StringIO
 
 
 def get_hist_data(code=None, start=None, end=None,

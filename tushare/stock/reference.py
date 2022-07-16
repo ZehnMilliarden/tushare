@@ -6,7 +6,9 @@ Created on 2015/03/21
 @group : waditu
 @contact: jimmysoa@sina.cn
 """
+
 from __future__ import division
+import sys
 from tushare.util.netbase import Client
 from tushare.util import dateu as du
 from tushare.stock import cons as ct
@@ -18,15 +20,8 @@ import lxml.html
 from lxml import etree
 import re
 import json
-v = pd.__version__
-if int(v.split('.')[1]) >= 25 or int(v.split('.')[0]) > 0:
-    from io import StringIO
-else:
-    from pandas.compat import StringIO
-try:
-    from urllib.request import urlopen, Request
-except ImportError:
-    from urllib2 import urlopen, Request
+from io import StringIO
+from urllib.request import urlopen, Request
 
 
 def profit_data(year=2017, top=25,
@@ -545,6 +540,7 @@ def _newcbonds(pageNo, retry_count, pause):
 
 
 def sh_margins(start=None, end=None, retry_count=3, pause=0.001):
+    print(sys._getframe().f_code.co_name + "接口失效")
     pass
     """
     获取沪市融资融券数据列表(接口异常,请求错误)
@@ -630,6 +626,7 @@ def _sh_hz(data, start=None, end=None,
 def sh_margin_details(date='', symbol='',
                       start='', end='',
                       retry_count=3, pause=0.001):
+    print(sys._getframe().f_code.co_name + "接口失效")
     pass
     """
     获取沪市融资融券明细列表(接口异常)
@@ -724,6 +721,7 @@ def _sh_mx(data, date='', start='', end='',
 
 
 def sz_margins(start=None, end=None, retry_count=3, pause=0.001):
+    print(sys._getframe().f_code.co_name + "接口失效")
     pass
     """
     获取深市融资融券数据列表(接口异常)
@@ -792,6 +790,7 @@ def _sz_hz(date='', retry_count=3, pause=0.001):
 
 
 def sz_margin_details(date='', retry_count=3, pause=0.001):
+    print(sys._getframe().f_code.co_name + "接口失效")
     pass
     """
     获取深市融资融券明细列表(接口异常)

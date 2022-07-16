@@ -18,15 +18,8 @@ import time
 import numpy as np
 from tushare.stock import cons as ct
 import pandas as pd
-v = pd.__version__
-if int(v.split('.')[1]) >= 25 or int(v.split('.')[0]) > 0:
-    from io import StringIO
-else:
-    from pandas.compat import StringIO
-try:
-    from urllib.request import urlopen, Request
-except ImportError:
-    from urllib2 import urlopen, Request
+from io import StringIO
+from urllib.request import urlopen, Request
 
 
 def top_list(date=None, retry_count=3, pause=0.001):

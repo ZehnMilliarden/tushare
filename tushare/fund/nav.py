@@ -17,10 +17,7 @@ import pandas as pd
 import numpy as np
 from tushare.fund import cons as ct
 from tushare.util import dateu as du
-try:
-    from urllib.request import urlopen, Request
-except ImportError:
-    from urllib2 import urlopen, Request
+from urllib.request import urlopen, Request
 
 
 def get_nav_open(fund_type='all'):

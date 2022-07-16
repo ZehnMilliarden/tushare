@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# -*- coding:utf-8 -*- 
+# -*- coding:utf-8 -*-
 """
 数字货币行情数据
 Created on 2017年9月9日
@@ -12,75 +12,72 @@ import pandas as pd
 import traceback
 import time
 import json
-try:
-    from urllib.request import urlopen, Request
-except ImportError:
-    from urllib2 import urlopen, Request
+from urllib.request import urlopen, Request
 
 
 URL = {
-       "hb": {
-              "rt"         : 'http://api.huobi.com/staticmarket/ticker_%s_json.js',
-              "kline"      : 'http://api.huobi.com/staticmarket/%s_kline_%s_json.js?length=%s',
-              "snapshot"   : 'http://api.huobi.com/staticmarket/depth_%s_%s.js',
-              "tick"       : 'http://api.huobi.com/staticmarket/detail_%s_json.js',
-              },
-       "ok": {
-              "rt"         : 'https://www.okcoin.cn/api/v1/ticker.do?symbol=%s_cny',
-              "kline"      : 'https://www.okcoin.cn/api/v1/kline.do?symbol=%s_cny&type=%s&size=%s',
-              "snapshot"   : 'https://www.okcoin.cn/api/v1/depth.do?symbol=%s_cny&merge=&size=%s',
-              "tick"       : 'https://www.okcoin.cn/api/v1/trades.do?symbol=%s_cny',
-              },
-       'chbtc': {
-                "rt"       : 'http://api.chbtc.com/data/v1/ticker?currency=%s_cny',
-                "kline"    : 'http://api.chbtc.com/data/v1/kline?currency=%s_cny&type=%s&size=%s',
-                "snapshot" : 'http://api.chbtc.com/data/v1/depth?currency=%s_cny&size=%s&merge=',
-                "tick"     : 'http://api.chbtc.com/data/v1/trades?currency=%s_cny',
-                }
-       }
+    "hb": {
+        "rt": 'http://api.huobi.com/staticmarket/ticker_%s_json.js',
+        "kline": 'http://api.huobi.com/staticmarket/%s_kline_%s_json.js?length=%s',
+        "snapshot": 'http://api.huobi.com/staticmarket/depth_%s_%s.js',
+              "tick": 'http://api.huobi.com/staticmarket/detail_%s_json.js',
+    },
+    "ok": {
+        "rt": 'https://www.okcoin.cn/api/v1/ticker.do?symbol=%s_cny',
+        "kline": 'https://www.okcoin.cn/api/v1/kline.do?symbol=%s_cny&type=%s&size=%s',
+        "snapshot": 'https://www.okcoin.cn/api/v1/depth.do?symbol=%s_cny&merge=&size=%s',
+              "tick": 'https://www.okcoin.cn/api/v1/trades.do?symbol=%s_cny',
+    },
+    'chbtc': {
+        "rt": 'http://api.chbtc.com/data/v1/ticker?currency=%s_cny',
+        "kline": 'http://api.chbtc.com/data/v1/kline?currency=%s_cny&type=%s&size=%s',
+        "snapshot": 'http://api.chbtc.com/data/v1/depth?currency=%s_cny&size=%s&merge=',
+        "tick": 'http://api.chbtc.com/data/v1/trades?currency=%s_cny',
+    }
+}
 
 KTYPES = {
-          "D": {
-                "hb"       : '100',
-                'ok'       : '1day',
-                'chbtc'    : '1day',
-                },
-          "W": {
-                "hb"       : '200',
-                'ok'       : '1week',
-                'chbtc'    : '1week',
-                },
-          "M": {
-                "hb"       : '300',
-                "ok"       : '',
-                "chbtc"    : '',
-                },
-          "1MIN": {
-                   "hb"    : '001',
-                   'ok'    : '1min',
-                   'chbtc' : '1min',
-                   },
-          "5MIN": {
-                   "hb"    : '005',
-                   'ok'    : '5min',
-                   'chbtc' : '5min',
-                   },
-          "15MIN": {
-                   "hb"    : '015',
-                   'ok'    : '15min',
-                   'chbtc' : '15min',
-                   },
-          "30MIN": {
-                   "hb"    : '030',
-                   'ok'    : '30min',
-                   'chbtc' : '30min',
-                   },
-          "60MIN": {
-                   "hb"    : '060',
-                   'ok'    : '1hour',
-                   'chbtc' : '1hour',
-                   },
-          } 
+    "D": {
+        "hb": '100',
+        'ok': '1day',
+        'chbtc': '1day',
+    },
+    "W": {
+        "hb": '200',
+        'ok': '1week',
+        'chbtc': '1week',
+    },
+    "M": {
+        "hb": '300',
+        "ok": '',
+        "chbtc": '',
+    },
+    "1MIN": {
+        "hb": '001',
+        'ok': '1min',
+        'chbtc': '1min',
+    },
+    "5MIN": {
+        "hb": '005',
+        'ok': '5min',
+        'chbtc': '5min',
+    },
+    "15MIN": {
+        "hb": '015',
+        'ok': '15min',
+        'chbtc': '15min',
+    },
+    "30MIN": {
+        "hb": '030',
+        'ok': '30min',
+        'chbtc': '30min',
+    },
+    "60MIN": {
+        "hb": '060',
+        'ok': '1hour',
+        'chbtc': '1hour',
+    },
+}
 
 
 def coins_tick(broker='hb', code='btc'):
@@ -145,10 +142,11 @@ def coins_tick(broker='hb', code='btc'):
          }
         }
 
-        
+
     """
     return _get_data(URL[broker]['rt'] % (code))
-            
+
+
 def coins_bar(broker='hb', code='btc', ktype='D', size='2000'):
     """
             获取各类k线数据
@@ -160,12 +158,14 @@ def coins_bar(broker='hb', code='btc', ktype='D', size='2000'):
     return DataFrame: 日期时间，开盘价，最高价，最低价，收盘价，成交量
     """
     try:
-        js = _get_data(URL[broker]['kline'] % (code, KTYPES[ktype.strip().upper()][broker], size))
+        js = _get_data(URL[broker]['kline'] %
+                       (code, KTYPES[ktype.strip().upper()][broker], size))
         if js is None:
             return js
         if broker == 'chbtc':
             js = js['data']
-        df = pd.DataFrame(js, columns=['DATE', 'OPEN', 'HIGH', 'LOW', 'CLOSE', 'VOL'])
+        df = pd.DataFrame(
+            js, columns=['DATE', 'OPEN', 'HIGH', 'LOW', 'CLOSE', 'VOL'])
         if broker == 'hb':
             if ktype.strip().upper() in ['D', 'W', 'M']:
                 df['DATE'] = df['DATE'].apply(lambda x: x[0:8])
@@ -198,12 +198,12 @@ def coins_snapshot(broker='hb', code='btc', size='5'):
             timestr = js['ts']
             timestr = int2time(timestr / 1000)
         if broker == 'ok':
-            timestr = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) 
+            timestr = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
         if broker == 'chbtc':
             timestr = js['timestamp']
             timestr = int2time(timestr)
-        asks = pd.DataFrame(js['asks'], columns = ['price', 'vol'])
-        bids = pd.DataFrame(js['bids'], columns = ['price', 'vol'])
+        asks = pd.DataFrame(js['asks'], columns=['price', 'vol'])
+        bids = pd.DataFrame(js['bids'], columns=['price', 'vol'])
         asks['time'] = timestr
         bids['time'] = timestr
         djs = {"asks": asks, "bids": bids}
@@ -220,7 +220,7 @@ def coins_trade(broker='hb', code='btc'):
     -------------
     broker: hb,ok,chbtc
     code:btc,ltc,eth,etc,bcc
-    
+
     return:
     ---------------
     DataFrame
@@ -252,8 +252,8 @@ def coins_trade(broker='hb', code='btc'):
 def _get_data(url):
     try:
         request = Request(url)
-        lines = urlopen(request, timeout = 10).read()
-        if len(lines) < 50: #no data
+        lines = urlopen(request, timeout=10).read()
+        if len(lines) < 50:  # no data
             return None
         js = json.loads(lines.decode('GBK'))
         return js
@@ -265,4 +265,3 @@ def int2time(timestamp):
     value = time.localtime(timestamp)
     dt = time.strftime('%Y-%m-%d %H:%M:%S', value)
     return dt
-

@@ -7,7 +7,7 @@ Created on 2015/02/01
 @group : waditu
 @contact: jimmysoa@sina.cn
 """
-
+import sys
 import pandas as pd
 from tushare.stock import cons as ct
 from tushare.stock import ref_vars as rv
@@ -16,21 +16,19 @@ import re
 import time
 import tushare.stock.fundamental as fd
 from tushare.util.netbase import Client
-
-try:
-    from urllib.request import urlopen, Request
-except ImportError:
-    from urllib2 import urlopen, Request
+from io import StringIO
 
 
 def get_industry_classified(standard='sina'):
+    print(sys._getframe().f_code.co_name + '接口失效')
+    pass
     """
         获取行业分类数据
     Parameters
     ----------
     standard
     sina:新浪行业 sw：申万 行业
-    
+
     Returns
     -------
     DataFrame
@@ -39,15 +37,15 @@ def get_industry_classified(standard='sina'):
         c_name :行业名称
     """
     if standard == 'sw':
-#         df = _get_type_data(ct.SINA_INDUSTRY_INDEX_URL%(ct.P_TYPE['http'],
-#                                                     ct.DOMAINS['vsf'], ct.PAGES['ids_sw']))
-        df = pd.read_csv(ct.TSDATA_CLASS%(ct.P_TYPE['http'], ct.DOMAINS['oss'], 'industry_sw'),
-                         dtype={'code':object})
+        #         df = _get_type_data(ct.SINA_INDUSTRY_INDEX_URL%(ct.P_TYPE['http'],
+        #                                                     ct.DOMAINS['vsf'], ct.PAGES['ids_sw']))
+        df = pd.read_csv(ct.TSDATA_CLASS % (ct.P_TYPE['http'], ct.DOMAINS['oss'], 'industry_sw'),
+                         dtype={'code': object})
     else:
-#         df = _get_type_data(ct.SINA_INDUSTRY_INDEX_URL%(ct.P_TYPE['http'],
-#                                                     ct.DOMAINS['vsf'], ct.PAGES['ids']))
-        df = pd.read_csv(ct.TSDATA_CLASS%(ct.P_TYPE['http'], ct.DOMAINS['oss'], 'industry'),
-                         dtype={'code':object})
+        #         df = _get_type_data(ct.SINA_INDUSTRY_INDEX_URL%(ct.P_TYPE['http'],
+        #                                                     ct.DOMAINS['vsf'], ct.PAGES['ids']))
+        df = pd.read_csv(ct.TSDATA_CLASS % (ct.P_TYPE['http'], ct.DOMAINS['oss'], 'industry'),
+                         dtype={'code': object})
 #     data = []
 #     ct._write_head()
 #     for row in df.values:
@@ -56,9 +54,11 @@ def get_industry_classified(standard='sina'):
 #         data.append(rowDf)
 #     data = pd.concat(data, ignore_index=True)
     return df
-        
+
 
 def get_concept_classified():
+    print(sys._getframe().f_code.co_name + '接口失效')
+    pass
     """
         获取概念分类数据
     Return
@@ -68,18 +68,18 @@ def get_concept_classified():
         name :股票名称
         c_name :概念名称
     """
-    df = pd.read_csv(ct.TSDATA_CLASS%(ct.P_TYPE['http'], ct.DOMAINS['oss'], 'concept'),
-                         dtype={'code':object})
+    df = pd.read_csv(ct.TSDATA_CLASS % (ct.P_TYPE['http'], ct.DOMAINS['oss'], 'concept'),
+                     dtype={'code': object})
     return df
 
 
 def concetps():
     ct._write_head()
-    df = _get_type_data(ct.SINA_CONCEPTS_INDEX_URL%(ct.P_TYPE['http'],
-                                                    ct.DOMAINS['sf'], ct.PAGES['cpt']))
+    df = _get_type_data(ct.SINA_CONCEPTS_INDEX_URL % (ct.P_TYPE['http'],
+                                                      ct.DOMAINS['sf'], ct.PAGES['cpt']))
     data = []
     for row in df.values:
-        rowDf =  _get_detail(row[0])
+        rowDf = _get_detail(row[0])
         if rowDf is not None:
             rowDf['c_name'] = row[1]
             data.append(rowDf)
@@ -88,8 +88,9 @@ def concetps():
     data.to_csv('d:\\cpt.csv', index=False)
 
 
-
 def get_concepts(src='dfcf'):
+    print(sys._getframe().f_code.co_name + '接口失效')
+    pass
     """
         获取概念板块行情数据
     Return
@@ -99,8 +100,8 @@ def get_concepts(src='dfcf'):
         name :股票名称
         c_name :概念名称
     """
-    clt = Client(ct.ET_CONCEPTS_INDEX_URL%(ct.P_TYPE['http'],
-                                                    ct.DOMAINS['dfcf'], _random(15)), ref='')
+    clt = Client(ct.ET_CONCEPTS_INDEX_URL % (ct.P_TYPE['http'],
+                                             ct.DOMAINS['dfcf'], _random(15)), ref='')
     content = clt.gvalue()
     content = content.decode('utf-8') if ct.PY3 else content
     js = json.loads(content)
@@ -110,11 +111,14 @@ def get_concepts(src='dfcf'):
         cs = cols[6].split('|')
         arr = [cols[2], cols[3], cs[0], cs[2], cols[7], cols[9]]
         data.append(arr)
-    df = pd.DataFrame(data, columns=['concept', 'change', 'up', 'down', 'top_code', 'top_name'])
+    df = pd.DataFrame(
+        data, columns=['concept', 'change', 'up', 'down', 'top_code', 'top_name'])
     return df
 
-    
+
 def get_area_classified():
+    print(sys._getframe().f_code.co_name + '接口失效')
+    pass
     """
         获取地域分类数据
     Return
@@ -132,6 +136,8 @@ def get_area_classified():
 
 
 def get_gem_classified():
+    print(sys._getframe().f_code.co_name + '接口失效')
+    pass
     """
         获取创业板股票
     Return
@@ -146,9 +152,11 @@ def get_gem_classified():
     df = df.loc[df.code.str[0] == '3']
     df = df.sort_values('code').reset_index(drop=True)
     return df
-    
+
 
 def get_sme_classified():
+    print(sys._getframe().f_code.co_name + '接口失效')
+    pass
     """
         获取中小板股票
     Return
@@ -162,9 +170,12 @@ def get_sme_classified():
     df = df[ct.FOR_CLASSIFY_COLS]
     df = df.loc[df.code.str[0:3] == '002']
     df = df.sort_values('code').reset_index(drop=True)
-    return df 
+    return df
+
 
 def get_st_classified():
+    print(sys._getframe().f_code.co_name + '接口失效')
+    pass
     """
         获取风险警示板股票
     Return
@@ -178,7 +189,7 @@ def get_st_classified():
     df = df[ct.FOR_CLASSIFY_COLS]
     df = df.loc[df.name.str.contains('ST')]
     df = df.sort_values('code').reset_index(drop=True)
-    return df 
+    return df
 
 
 def _get_detail(tag, retry_count=3, pause=0.001):
@@ -191,9 +202,9 @@ def _get_detail(tag, retry_count=3, pause=0.001):
             time.sleep(pause)
             try:
                 ct._write_console()
-                request = Request(ct.SINA_DATA_DETAIL_URL%(ct.P_TYPE['http'],
-                                                                   ct.DOMAINS['vsf'], ct.PAGES['jv'],
-                                                                   p,tag))
+                request = Request(ct.SINA_DATA_DETAIL_URL % (ct.P_TYPE['http'],
+                                                             ct.DOMAINS['vsf'], ct.PAGES['jv'],
+                                                             p, tag))
                 text = urlopen(request, timeout=10).read()
                 text = text.decode('gbk')
             except:
@@ -206,14 +217,15 @@ def _get_detail(tag, retry_count=3, pause=0.001):
         text = text.replace('{symbol', '{"symbol"')
         jstr = json.dumps(text)
         js = json.loads(jstr)
-        df = pd.DataFrame(pd.read_json(js, dtype={'code':object}), columns=ct.THE_FIELDS)
+        df = pd.DataFrame(pd.read_json(
+            js, dtype={'code': object}), columns=ct.THE_FIELDS)
 #         df = df[ct.FOR_CLASSIFY_B_COLS]
         df = df[['code', 'name']]
         dfc = pd.concat([dfc, df])
         if df.shape[0] < num_limit:
             return dfc
         #raise IOError(ct.NETWORK_URL_ERROR_MSG)
-    
+
 
 def _get_type_data(url):
     try:
@@ -241,10 +253,10 @@ def get_hs300s():
         weight:权重
     """
     try:
-        wt = pd.read_excel(ct.HS300_CLASSIFY_URL_FTP%(ct.P_TYPE['http'], ct.DOMAINS['idx'], 
-                                                  ct.PAGES['hs300w']), usecols=[0, 4, 5, 8])
+        wt = pd.read_excel(ct.HS300_CLASSIFY_URL_FTP % (ct.P_TYPE['http'], ct.DOMAINS['idx'],
+                                                        ct.PAGES['hs300w']), usecols=[0, 4, 5, 8])
         wt.columns = ct.FOR_CLASSIFY_W_COLS
-        wt['code'] = wt['code'].map(lambda x :str(x).zfill(6))
+        wt['code'] = wt['code'].map(lambda x: str(x).zfill(6))
         return wt
     except Exception as er:
         print(str(er))
@@ -261,13 +273,13 @@ def get_sz50s():
         name :股票名称
     """
     try:
-        df = pd.read_excel(ct.SZ_CLASSIFY_URL_FTP%(ct.P_TYPE['http'], ct.DOMAINS['idx'], 
-                                                  ct.PAGES['sz50b']), parse_cols=[0, 4, 5])
+        df = pd.read_excel(ct.SZ_CLASSIFY_URL_FTP % (ct.P_TYPE['http'], ct.DOMAINS['idx'],
+                                                     ct.PAGES['sz50b']), parse_cols=[0, 4, 5])
         df.columns = ct.FOR_CLASSIFY_B_COLS
-        df['code'] = df['code'].map(lambda x :str(x).zfill(6))
+        df['code'] = df['code'].map(lambda x: str(x).zfill(6))
         return df
     except Exception as er:
-        print(str(er))      
+        print(str(er))
 
 
 def get_zz500s():
@@ -282,13 +294,13 @@ def get_zz500s():
         weight : 权重
     """
     try:
-        wt = pd.read_excel(ct.HS300_CLASSIFY_URL_FTP%(ct.P_TYPE['http'], ct.DOMAINS['idx'], 
-                                                   ct.PAGES['zz500wt']), usecols=[0, 4, 5, 8])
+        wt = pd.read_excel(ct.HS300_CLASSIFY_URL_FTP % (ct.P_TYPE['http'], ct.DOMAINS['idx'],
+                                                        ct.PAGES['zz500wt']), usecols=[0, 4, 5, 8])
         wt.columns = ct.FOR_CLASSIFY_W_COLS
-        wt['code'] = wt['code'].map(lambda x :str(x).zfill(6))
+        wt['code'] = wt['code'].map(lambda x: str(x).zfill(6))
         return wt
     except Exception as er:
-        print(str(er)) 
+        print(str(er))
 
 
 def get_terminated():
@@ -303,11 +315,11 @@ def get_terminated():
         tDate:终止上市日期 
     """
     try:
-        
-        ref = ct.SSEQ_CQ_REF_URL%(ct.P_TYPE['http'], ct.DOMAINS['sse'])
-        clt = Client(rv.TERMINATED_URL%(ct.P_TYPE['http'], ct.DOMAINS['sseq'],
-                                    ct.PAGES['ssecq'], _random(5),
-                                    _random()), ref=ref, cookie=rv.MAR_SH_COOKIESTR)
+
+        ref = ct.SSEQ_CQ_REF_URL % (ct.P_TYPE['http'], ct.DOMAINS['sse'])
+        clt = Client(rv.TERMINATED_URL % (ct.P_TYPE['http'], ct.DOMAINS['sseq'],
+                                          ct.PAGES['ssecq'], _random(5),
+                                          _random()), ref=ref, cookie=rv.MAR_SH_COOKIESTR)
         lines = clt.gvalue()
         lines = lines.decode('utf-8') if ct.PY3 else lines
         lines = lines[19:-1]
@@ -316,7 +328,7 @@ def get_terminated():
         df.columns = rv.TERMINATED_COLS
         return df
     except Exception as er:
-        print(str(er))      
+        print(str(er))
 
 
 def get_suspended():
@@ -331,11 +343,11 @@ def get_suspended():
         tDate:终止上市日期 
     """
     try:
-        
-        ref = ct.SSEQ_CQ_REF_URL%(ct.P_TYPE['http'], ct.DOMAINS['sse'])
-        clt = Client(rv.SUSPENDED_URL%(ct.P_TYPE['http'], ct.DOMAINS['sseq'],
-                                    ct.PAGES['ssecq'], _random(5),
-                                    _random()), ref=ref, cookie=rv.MAR_SH_COOKIESTR)
+
+        ref = ct.SSEQ_CQ_REF_URL % (ct.P_TYPE['http'], ct.DOMAINS['sse'])
+        clt = Client(rv.SUSPENDED_URL % (ct.P_TYPE['http'], ct.DOMAINS['sseq'],
+                                         ct.PAGES['ssecq'], _random(5),
+                                         _random()), ref=ref, cookie=rv.MAR_SH_COOKIESTR)
         lines = clt.gvalue()
         lines = lines.decode('utf-8') if ct.PY3 else lines
         lines = lines[19:-1]
@@ -344,14 +356,11 @@ def get_suspended():
         df.columns = rv.TERMINATED_COLS
         return df
     except Exception as er:
-        print(str(er))   
-            
+        print(str(er))
 
 
 def _random(n=13):
     from random import randint
     start = 10**(n-1)
     end = (10**n)-1
-    return str(randint(start, end))  
-
-
+    return str(randint(start, end))
